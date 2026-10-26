@@ -7,3 +7,5 @@ env/
 venv/
 *.log
 .system_generated/
+pdftoppm*
+poppler/
