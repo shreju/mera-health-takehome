@@ -12,6 +12,7 @@ Scores:
     - Latency and estimated API cost
 """
 import argparse
+
 import difflib
 import importlib
 import json
@@ -235,7 +236,7 @@ def run_eval(extractor_module_name: str = "extract", output_file: str = None):
 
     # Default model fallback if not set
     if "GEMINI_MODEL" not in os.environ:
-        os.environ["GEMINI_MODEL"] = "gemini-2.5-flash"
+        os.environ["GEMINI_MODEL"] = "gemini-3-flash-preview"
 
     extractor = importlib.import_module(extractor_module_name)
 
@@ -244,13 +245,13 @@ def run_eval(extractor_module_name: str = "extract", output_file: str = None):
 
     gold_files = sorted(gold_dir.glob("*.json"))
     if not gold_files:
-        print("No gold files found in gold/")
+        print("No gold files found in gold/", flush=True)
         return
 
-    print("=" * 80)
-    print(f"EVALUATING: {extractor_module_name}.py (Model: {os.environ.get('GEMINI_MODEL')})")
-    print(f"Total labelled reports: {len(gold_files)}")
-    print("=" * 80)
+    print("=" * 80, flush=True)
+    print(f"EVALUATING: {extractor_module_name}.py (Model: {os.environ.get('GEMINI_MODEL')})", flush=True)
+    print(f"Total labelled reports: {len(gold_files)}", flush=True)
+    print("=" * 80, flush=True)
 
     report_results = {}
     total_gold = 0
@@ -261,10 +262,12 @@ def run_eval(extractor_module_name: str = "extract", output_file: str = None):
     total_latency = 0.0
 
     # Table Header
-    print(f"{'Report':<15} | {'Gold':>4} | {'Pred':>4} | {'NameMatch':>9} | {'ValMatch':>8} | {'Strict':>6} | {'Val F1':>7} | {'Strict F1':>9} | {'Latency':>7}")
-    print("-" * 88)
+    print(f"{'Report':<15} | {'Gold':>4} | {'Pred':>4} | {'NameMatch':>9} | {'ValMatch':>8} | {'Strict':>6} | {'Val F1':>7} | {'Strict F1':>9} | {'Latency':>7}", flush=True)
+    print("-" * 88, flush=True)
 
-    for g_path in gold_files:
+    for i, g_path in enumerate(gold_files):
+        if i > 0:
+            time.sleep(2.0)  # Rate limiting spacing
         report_id = g_path.stem  # e.g. report_01
         gold_data = json.loads(g_path.read_text(encoding="utf-8")).get("tests", [])
 
